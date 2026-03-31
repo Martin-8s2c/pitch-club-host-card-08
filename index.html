@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitchClub · Host IQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #4B3BC7;
+  --purple-light: #EEF0FF;
+  --orange: #F5A623;
+  --orange-light: #FFF8EC;
+  --white: #FFFFFF;
+  --off-white: #F7F6FF;
+  --dark: #1A1650;
+  --muted: #8B8BAD;
+  --green: #2D9B6F;
+  --red: #E53E3E;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--off-white);
+  color: var(--dark);
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.screen { display: none; max-width: 500px; width: 100%; animation: fadeUp 0.35s ease forwards; }
+.screen.active { display: flex; flex-direction: column; gap: 0; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 36px 32px;
+  box-shadow: 0 8px 48px rgba(75,59,199,0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.logo-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 20px; border-bottom: 3px solid var(--orange);
+}
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--purple); letter-spacing: 0.04em; }
+.logo span { color: var(--orange); }
+.logo-tag { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.intro-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.intro-emoji { font-size: 64px; line-height: 1; animation: pop 0.5s ease; }
+.intro-title { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: var(--dark); line-height: 0.95; letter-spacing: 0.02em; }
+.intro-title span { color: var(--orange); }
+.intro-sub { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 340px; }
+.intro-stats { display: flex; border: 2px solid var(--purple-light); border-radius: 14px; overflow: hidden; width: 100%; }
+.intro-stat { flex: 1; padding: 14px 8px; text-align: center; border-right: 2px solid var(--purple-light); }
+.intro-stat:last-child { border-right: none; }
+.intro-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--purple); line-height: 1; display: block; }
+.intro-stat-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple); }
+.name-input {
+  width: 100%; padding: 15px 18px;
+  border: 2.5px solid var(--purple-light); border-radius: 12px;
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--dark);
+  outline: none; transition: border-color 0.2s; background: var(--off-white);
+}
+.name-input:focus { border-color: var(--purple); background: var(--white); }
+.name-input::placeholder { color: #ccc; font-weight: 600; }
+.btn-primary {
+  width: 100%; padding: 17px;
+  background: var(--orange); color: var(--white);
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.05em;
+  border: none; border-radius: 50px; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(245,166,35,0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,166,35,0.5); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary {
+  width: 100%; padding: 15px;
+  background: transparent; color: var(--purple);
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.04em;
+  border: 2.5px solid var(--purple-light); border-radius: 50px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--purple); background: var(--purple-light); transform: translateY(-1px); }
+.quiz-header { display: flex; flex-direction: column; gap: 14px; }
+.progress-track { width: 100%; height: 5px; background: var(--purple-light); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--purple), var(--orange)); border-radius: 3px; transition: width 0.4s ease; }
+.quiz-meta { display: flex; align-items: center; justify-content: space-between; }
+.q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--dark); letter-spacing: 0.04em; }
+.q-counter span { color: var(--muted); font-size: 16px; }
+.q-timer { font-size: 13px; font-weight: 800; color: var(--muted); letter-spacing: 0.05em; }
+.zone-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; background: var(--orange-light);
+  border: 1.5px solid rgba(245,166,35,0.35); border-radius: 50px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #92400E;
+  width: fit-content;
+}
+.zone-dots { display: flex; gap: 4px; }
+.zone-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple-light); border: 1.5px solid var(--orange); transition: background 0.3s; }
+.zone-dot.done { background: var(--orange); }
+.question-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(26px, 5vw, 36px); color: var(--dark); line-height: 1.1; letter-spacing: 0.02em; }
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice-btn {
+  width: 100%; padding: 16px 18px;
+  border: 2.5px solid var(--purple-light); border-radius: 14px;
+  background: var(--white); font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--dark);
+  text-align: left; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 12px; line-height: 1.5;
+  transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(75,59,199,0.05);
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.15); }
+.choice-btn.selected { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+.choice-btn:disabled { cursor: not-allowed; }
+.opt-letter {
+  min-width: 28px; height: 28px; border-radius: 50%;
+  background: var(--orange); color: var(--white);
+  font-size: 12px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.choice-btn.selected .opt-letter { background: var(--purple); }
+.quiz-nudge { text-align: center; font-size: 11px; font-weight: 700; color: #ccc; letter-spacing: 0.08em; font-style: italic; }
+.result-badge {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  background: var(--purple); border-radius: 20px; padding: 32px 24px;
+  text-align: center; animation: pop 0.5s ease;
+}
+.result-emoji { font-size: 72px; line-height: 1; }
+.result-level { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.result-name { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--white); letter-spacing: 0.04em; line-height: 1; }
+.result-tagline { font-size: 14px; font-weight: 700; color: var(--orange); font-style: italic; }
+.result-desc { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.65); line-height: 1.6; max-width: 340px; }
+.score-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.score-box { background: var(--off-white); border: 2px solid var(--purple-light); border-radius: 14px; padding: 16px; text-align: center; }
+.score-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: var(--purple); line-height: 1; display: block; }
+.score-lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.heat-section { display: flex; flex-direction: column; gap: 10px; }
+.heat-title { font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.heat-row { display: flex; align-items: center; gap: 10px; }
+.heat-label { font-size: 12px; font-weight: 800; color: var(--dark); min-width: 130px; }
+.heat-track { flex: 1; height: 10px; background: var(--purple-light); border-radius: 5px; overflow: hidden; }
+.heat-bar { height: 100%; border-radius: 5px; transition: width 0.8s ease; }
+.heat-score { font-size: 12px; font-weight: 900; color: var(--dark); min-width: 28px; text-align: right; }
+.save-block { display: flex; flex-direction: column; gap: 10px; }
+.save-title { font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.save-info { font-size: 13px; font-weight: 600; color: var(--muted); line-height: 1.5; }
+.results-text {
+  width: 100%; padding: 14px 16px;
+  background: var(--off-white); border: 2px solid var(--purple-light); border-radius: 12px;
+  font-family: 'Courier New', monospace; font-size: 11px; color: var(--dark);
+  line-height: 1.7; resize: none; outline: none;
+  display: none;
+}
+.next-steps { display: flex; flex-direction: column; gap: 8px; }
+.next-step {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; background: var(--off-white);
+  border-radius: 12px; border: 1.5px solid var(--purple-light);
+}
+.next-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--orange); min-width: 24px; letter-spacing: 0.04em; }
+.next-text { font-size: 14px; font-weight: 800; color: var(--dark); }
+.footer-note { font-size: 11px; color: #ccc; text-align: center; letter-spacing: 0.06em; }
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--dark); color: var(--white);
+  padding: 12px 24px; border-radius: 50px;
+  font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+  transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<!-- INTRO -->
+<div class="screen active" id="screen-intro">
+  <div class="card">
+    <div class="logo-row">
+      <div class="logo">PITCH<span>CLUB</span></div>
+      <div class="logo-tag">Host IQ</div>
+    </div>
+    <div class="intro-hero">
+      <div class="intro-emoji">🎯</div>
+      <h1 class="intro-title">Ready to host<br><span>PitchClub?</span></h1>
+      <p class="intro-sub">Take this 90 second quiz.<br>See where you are now.<br>Know exactly what to focus on next.</p>
+    </div>
+    <div class="intro-stats">
+      <div class="intro-stat"><span class="intro-stat-num">12</span><span class="intro-stat-lbl">Questions</span></div>
+      <div class="intro-stat"><span class="intro-stat-num">90"</span><span class="intro-stat-lbl">To complete</span></div>
+      <div class="intro-stat"><span class="intro-stat-num">4</span><span class="intro-stat-lbl">Badges</span></div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Your first name</label>
+      <input class="name-input" id="name-input" type="text" placeholder="James..." autocomplete="off" />
+    </div>
+    <button class="btn-primary" id="start-btn" disabled onclick="startQuiz()">Start the quiz →</button>
+    <p style="text-align:center; font-size:12px; color:#ccc; font-style:italic;">Your answers shape your coaching session.</p>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="card">
+    <div class="quiz-header">
+      <div class="progress-track"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+      <div class="quiz-meta">
+        <div class="q-counter" id="q-counter">1 <span>/ 12</span></div>
+        <div class="q-timer" id="q-timer">⏱ 0s</div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="zone-chip" id="zone-chip">Zone 1 · Before & Setup</div>
+        <div class="zone-dots">
+          <div class="zone-dot" id="zdot-0"></div>
+          <div class="zone-dot" id="zdot-1"></div>
+          <div class="zone-dot" id="zdot-2"></div>
+          <div class="zone-dot" id="zdot-3"></div>
+        </div>
+      </div>
+    </div>
+    <p class="question-text" id="question-text"></p>
+    <div class="choices">
+      <button class="choice-btn" id="btn-a" onclick="choose(0)"><span class="opt-letter">A</span><span id="opt-a-text"></span></button>
+      <button class="choice-btn" id="btn-b" onclick="choose(1)"><span class="opt-letter">B</span><span id="opt-b-text"></span></button>
+    </div>
+    <p class="quiz-nudge">Go with your gut. First instinct.</p>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="screen-result">
+  <div class="card">
+    <div class="logo-row">
+      <div class="logo">PITCH<span>CLUB</span></div>
+      <div class="logo-tag">Your Result</div>
+    </div>
+
+    <div class="result-badge" id="result-badge">
+      <div class="result-emoji" id="result-emoji"></div>
+      <div class="result-level" id="result-level"></div>
+      <div class="result-name" id="result-name"></div>
+      <div class="result-tagline" id="result-tagline"></div>
+      <div class="result-desc" id="result-desc"></div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-box"><span class="score-num" id="score-num"></span><span class="score-lbl">Out of 12</span></div>
+      <div class="score-box"><span class="score-num" id="time-num"></span><span class="score-lbl">Total seconds</span></div>
+    </div>
+
+    <div class="heat-section">
+      <div class="heat-title">Your Four Zones</div>
+      <div class="heat-row"><span class="heat-label">Before & Setup</span><div class="heat-track"><div class="heat-bar" id="heat-0" style="width:0%"></div></div><span class="heat-score" id="hscore-0"></span></div>
+      <div class="heat-row"><span class="heat-label">Live Structure</span><div class="heat-track"><div class="heat-bar" id="heat-1" style="width:0%"></div></div><span class="heat-score" id="hscore-1"></span></div>
+      <div class="heat-row"><span class="heat-label">Feedback & Close</span><div class="heat-track"><div class="heat-bar" id="heat-2" style="width:0%"></div></div><span class="heat-score" id="hscore-2"></span></div>
+      <div class="heat-row"><span class="heat-label">Mindset & Transfer</span><div class="heat-track"><div class="heat-bar" id="heat-3" style="width:0%"></div></div><span class="heat-score" id="hscore-3"></span></div>
+    </div>
+    <div class="save-block">
+      <div class="save-title">Share your results with Martin</div>
+      <p class="save-info">Hit Copy — then paste into a message, email, or Notion comment.</p>
+      <button class="btn-primary" onclick="copyResults()">📋 Copy results</button>
+      <button class="btn-secondary" id="btn-show-text" onclick="toggleText()">Show as text</button>
+      <textarea class="results-text" id="results-text" rows="10" readonly></textarea>
+    </div>
+
+    <div class="next-steps">
+      <div class="heat-title">What happens next</div>
+      <div class="next-step"><span class="next-num">01</span><span class="next-text">Host the session</span></div>
+      <div class="next-step"><span class="next-num">02</span><span class="next-text">Feel where the gaps are</span></div>
+      <div class="next-step"><span class="next-num">03</span><span class="next-text">Talk to Martin</span></div>
+      <div class="next-step"><span class="next-num">04</span><span class="next-text">Take the quiz again</span></div>
+    </div>
+
+    <p class="footer-note" id="footer-note"></p>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { zone:"Before & Setup",    zoneIdx:0, q:"You haven't heard back from two pitchers. Do you chase?",       a:"Trust them. Pitchers are adults.",                          b:"Personal message. Name to name. Every one." },
+  { zone:"Before & Setup",    zoneIdx:0, q:"Morning of — someone asks to swap their slot.",                  a:"Fine. Flexibility shows good faith.",                       b:"No. Running order locked. No last-minute changes." },
+  { zone:"Before & Setup",    zoneIdx:0, q:"15 minutes before. You're still on Slack.",                      a:"Finish the thread. Two more minutes.",                      b:"Close everything. You are unreachable now." },
+  { zone:"Live Structure",    zoneIdx:1, q:"People still arriving. Do you start?",                           a:"Wait. They deserve the full experience.",                   b:"Start. Punctuality is respect." },
+  { zone:"Live Structure",    zoneIdx:1, q:"Silence after a pitch. Nobody speaks.",                          a:"Fill it. Energy is your job.",                              b:"Hold it. Silence is the tool." },
+  { zone:"Live Structure",    zoneIdx:1, q:"You vary your intro signal to keep it fresh.",                   a:"Good. Variety stops it feeling mechanical.",                b:"Bad. Same signal every time. Consistency is the tool." },
+  { zone:"Feedback & Close",  zoneIdx:2, q:"A pitcher starts re-pitching during self-reflection.",           a:"Let them. They're still processing.",                       b:"Stop them. One good. One to improve. That's it." },
+  { zone:"Feedback & Close",  zoneIdx:2, q:"Fourth person repeating the same feedback point.",               a:"Let them finish. Everyone deserves their say.",             b:"Cut it warmly. Redirect, don't apologise." },
+  { zone:"Feedback & Close",  zoneIdx:2, q:"Running 4 minutes over. One thing left to discuss.",            a:"Finish it. Content matters more than the clock.",           b:"Close. On time. The clock is the content." },
+  { zone:"Mindset & Transfer",zoneIdx:3, q:"You close the call. Your job as host is...",                    a:"Done. You ran a great session.",                            b:"Not done. Winner. Debrief. Transfer the skill." },
+  { zone:"Mindset & Transfer",zoneIdx:3, q:"Someone pushes back on their feedback.",                        a:"Mediate. Both sides have merit.",                           b:"Give them back what the room saw. Let them decide." },
+  { zone:"Mindset & Transfer",zoneIdx:3, q:"A great PitchClub session means...",                            a:"Strong pitches on the day.",                                b:"The skill shows up somewhere else the following week." },
+];
+
+const BADGES = [
+  { range:[0,3],   emoji:"🐼", level:"Level 01 · 0–3",   name:"The Tumbling Panda",  tagline:"Loveable. Chaotic. Absolutely here for it.",           desc:"Fell over twice just reading the questions. That's fine — everyone starts here. The room will love you anyway. The gaps are real but so is the potential." },
+  { range:[4,7],   emoji:"🦌", level:"Level 02 · 4–7",   name:"The Stepping Deer",   tagline:"Graceful. Finding your footing. Something's forming.", desc:"Moving with intention. Not perfect, but genuinely elegant. Your instincts are waking up — the live session will sharpen the edges of what you already sense." },
+  { range:[8,10],  emoji:"🦅", level:"Level 03 · 8–10",  name:"The Sharp Falcon",    tagline:"Precise. Built for this. Doesn't miss much.",          desc:"You've got the framework and most of the instincts. One or two blind spots remaining — but way ahead of where most hosts start." },
+  { range:[11,12], emoji:"🐺", level:"Level 04 · 11–12", name:"The Quiet Wolf",      tagline:"Reads the room. Leads quietly. Been here before.",     desc:"Why are you even taking this quiz? You should be running it. Either you've hosted a hundred times and forgot to mention it — suspicious. We're watching you." },
+];
+
+const ZONE_NAMES = ["Before & Setup","Live Structure","Feedback & Close","Mindset & Transfer"];
+
+let current=0, answers=[], qTimes=[];
+let startTime, qStart, timerInterval, totalTime, hostName="";
+let resultText = "";
+
+document.getElementById("name-input").addEventListener("input", function() {
+  document.getElementById("start-btn").disabled = !this.value.trim();
+  hostName = this.value.trim();
+});
+document.getElementById("name-input").addEventListener("keydown", function(e) {
+  if (e.key==="Enter" && this.value.trim()) startQuiz();
+});
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  el.classList.add("active");
+  el.style.animation = "none"; el.offsetHeight; el.style.animation = "";
+  window.scrollTo(0, 0);
+}
+
+function startQuiz() {
+  hostName = document.getElementById("name-input").value.trim();
+  if (!hostName) return;
+  current=0; answers=[]; qTimes=[];
+  startTime = Date.now(); qStart = Date.now();
+  show("screen-quiz");
+  renderQuestion();
+  timerInterval = setInterval(updateTimer, 500);
+}
+
+function updateTimer() {
+  document.getElementById("q-timer").textContent = "⏱ " + Math.floor((Date.now()-startTime)/1000) + "s";
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  const pct = (current / QUESTIONS.length) * 100;
+  document.getElementById("progress-bar").style.width = pct + "%";
+  document.getElementById("q-counter").innerHTML = (current+1) + ' <span>/ '+QUESTIONS.length+'</span>';
+  document.getElementById("question-text").textContent = q.q;
+  document.getElementById("opt-a-text").textContent = q.a;
+  document.getElementById("opt-b-text").textContent = q.b;
+  document.getElementById("zone-chip").textContent = "Zone "+(q.zoneIdx+1)+" · "+q.zone;
+  for (let i=0; i<4; i++) document.getElementById("zdot-"+i).classList.toggle("done", i < q.zoneIdx);
+  const bA = document.getElementById("btn-a"), bB = document.getElementById("btn-b");
+  bA.classList.remove("selected"); bA.disabled = false;
+  bB.classList.remove("selected"); bB.disabled = false;
+  qStart = Date.now();
+}
+
+function choose(idx) {
+  const elapsed = Math.round((Date.now()-qStart)/1000);
+  qTimes.push(elapsed); answers.push(idx);
+  const btn = idx===0 ? document.getElementById("btn-a") : document.getElementById("btn-b");
+  btn.classList.add("selected");
+  document.getElementById("btn-a").disabled = true;
+  document.getElementById("btn-b").disabled = true;
+  setTimeout(() => {
+    current++;
+    if (current >= QUESTIONS.length) {
+      clearInterval(timerInterval);
+      totalTime = Math.floor((Date.now()-startTime)/1000);
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }, 420);
+}
+
+function showResult() {
+  const score = answers.filter((a,i) => a===1).length;
+  const badge = BADGES.find(b => score>=b.range[0] && score<=b.range[1]);
+  const zScores = [0,0,0,0];
+  answers.forEach((a,i) => { if (a===1) zScores[QUESTIONS[i].zoneIdx]++; });
+
+  document.getElementById("result-emoji").textContent = badge.emoji;
+  document.getElementById("result-level").textContent = badge.level;
+  document.getElementById("result-name").textContent = badge.name;
+  document.getElementById("result-tagline").textContent = '"'+badge.tagline+'"';
+  document.getElementById("result-desc").textContent = badge.desc;
+  document.getElementById("score-num").textContent = score;
+  document.getElementById("time-num").textContent = totalTime+"s";
+
+  zScores.forEach((s,i) => {
+    const color = s===3?"#2D9B6F":s===2?"#4B3BC7":s===1?"#F5A623":"#E53E3E";
+    document.getElementById("heat-"+i).style.background = color;
+  });
+  document.getElementById("hscore-0").textContent = zScores[0]+"/3";
+  document.getElementById("hscore-1").textContent = zScores[1]+"/3";
+  document.getElementById("hscore-2").textContent = zScores[2]+"/3";
+  document.getElementById("hscore-3").textContent = zScores[3]+"/3";
+
+  document.getElementById("footer-note").textContent =
+    "PitchClub Host IQ · "+hostName+" · "+badge.name+" · "+new Date().toLocaleDateString();
+
+  // Build result text
+  const lines = [
+    "PITCHCLUB HOST IQ — RESULTS",
+    "============================",
+    "",
+    "Name:   "+hostName,
+    "Date:   "+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),
+    "Badge:  "+badge.emoji+" "+badge.name,
+    "Score:  "+score+" / 12",
+    "Time:   "+totalTime+"s",
+    "",
+    "ZONE BREAKDOWN",
+    "--------------",
+  ];
+  ZONE_NAMES.forEach((z,i) => lines.push(z+": "+zScores[i]+"/3"));
+  lines.push("","ANSWER MAP","----------");
+  answers.forEach((a,i) => {
+    const mark = a===1 ? "✓" : "✗";
+    const chosen = a===0 ? "A" : "B";
+    const fast = qTimes[i]<=5;
+    const right = a===1;
+    let tag;
+    if (fast && !right)  tag = "Confident blind spot";
+    else if (!fast && !right) tag = "Aware uncertainty";
+    else if (fast && right)   tag = "Genuine instinct";
+    else tag = "Careful & correct";
+    lines.push("Q"+(i+1)+" ["+mark+"] "+qTimes[i]+"s  Chose "+chosen+"  "+tag+"  — "+QUESTIONS[i].q);
+  });
+  lines.push("","---","PitchClub Host IQ · Martin Barnes");
+  resultText = lines.join("\n");
+  document.getElementById("results-text").value = resultText;
+
+  show("screen-result");
+  setTimeout(() => {
+    zScores.forEach((s,i) => {
+      document.getElementById("heat-"+i).style.width = ((s/3)*100)+"%";
+    });
+  }, 100);
+}
+
+function copyResults() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(resultText).then(showToast).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+}
+
+function fallbackCopy() {
+  const ta = document.getElementById("results-text");
+  ta.style.display = "block";
+  ta.select();
+  try {
+    document.execCommand("copy");
+    showToast();
+  } catch(e) {
+    // If all else fails, show the text so they can copy manually
+    document.getElementById("btn-show-text").textContent = "Hide text";
+  }
+}
+
+function showToast() {
+  const toast = document.getElementById("toast");
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function toggleText() {
+  const ta = document.getElementById("results-text");
+  const btn = document.getElementById("btn-show-text");
+  if (ta.style.display === "block") {
+    ta.style.display = "none";
+    btn.textContent = "Show as text";
+  } else {
+    ta.style.display = "block";
+    ta.select();
+    btn.textContent = "Hide text";
+  }
+}
+</script>
+</body>
+</html>
